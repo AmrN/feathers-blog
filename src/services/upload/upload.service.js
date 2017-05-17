@@ -13,7 +13,7 @@ var storage = multer.diskStorage({
   filename: function (req, file, cb) {
     const originalNameArr = file.originalname.split('.');
     const filename = [
-      originalNameArr.slice(0,-1).join('.') + '-' + Date.now(),
+      originalNameArr.slice(0, -1).join('.') + '-' + Date.now(),
       originalNameArr.slice(-1),
     ].join('.');
     // cb(null, file.fieldname + '-' + Date.now());
@@ -36,11 +36,11 @@ module.exports = function () {
     (req, res, next) => {
       next();
     },
-    multipartMiddleware.single('file'),
+    multipartMiddleware.array('files', 10),
     (req, res, next) => {
-      res.status(201).json({
-        url: `http://localhost:3030/uploads/${req.file.filename}`,
-      });
+      res.status(201).json(req.files.map(f => (
+        { url: `http://localhost:3030/uploads/${f.filename}`, }
+      )));
       // req.feathers.file = req.file;
       // next();
     }
