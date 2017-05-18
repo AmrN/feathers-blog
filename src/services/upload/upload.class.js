@@ -47,13 +47,24 @@ class Service {
         if (err) {
           return reject(err);
         }
-        const res = req.files.map(f => (
-          { url: `http://localhost:3030/uploads/${f.filename}`, }
-        ));
+        const res = {};
+        req.files.forEach(f => {
+          const fileUrl = `http://localhost:3030/uploads/${f.filename}`;
+          if (res[f.fieldname]) {
+            const currentValue = res[f.fieldname];
+            if(Array.isArray(currentValue)) {
+              res[f.fieldname].push(fileUrl);
+            } else {
+              res[f.fieldname] = [currentValue, fileUrl];
+            }
+          } else {
+            res[f.fieldname] = fileUrl;
+          }
+        });
         resolve(res);
       };
 
-      multipartMiddleware.array('files', 10)(req, res, cb);
+      multipartMiddleware.any()(req, res, cb);
     });
   }
 
