@@ -10,15 +10,7 @@ module.exports = {
     all: [],
     find: [],
     get: [],
-    create: [
-      function (hook) {
-        if (!hook.data.uri && hook.params.file) {
-          const file = hook.params.file;
-          const uri = dauria.getBase64DataURI(file.buffer, file.mimetype);
-          hook.data = { uri: uri };
-        }
-      }
-    ],
+    create: [],
     update: [],
     patch: [],
     remove: []
@@ -29,10 +21,10 @@ module.exports = {
     find: [],
     get: [],
     create: [
-      (hook) => {
-        hook.result = {url: `${uploadsPath}/${hook.result.id}`};
-        return hook;
-      }
+      // (hook) => {
+      //   hook.result = {url: `${uploadsPath}/${hook.result.id}`};
+      //   return hook;
+      // }
     ],
     update: [],
     patch: [],

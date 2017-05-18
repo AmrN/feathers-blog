@@ -1,58 +1,32 @@
 // Initializes the `upload` service on path `/upload`
-// const hooks = require('./upload.hooks');
-// const filters = require('./upload.filters');
-// const blobService = require('feathers-blob');
-// const fs = require('fs-blob-store');
-const path = require('path');
-const multer = require('multer');
+const hooks = require('./upload.hooks');
+const filters = require('./upload.filters');
 
-var storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../../../public/uploads'));
-  },
-  filename: function (req, file, cb) {
-    const originalNameArr = file.originalname.split('.');
-    const filename = [
-      originalNameArr.slice(0, -1).join('.') + '-' + Date.now(),
-      originalNameArr.slice(-1),
-    ].join('.');
-    // cb(null, file.fieldname + '-' + Date.now());
-    cb(null, filename);
-  }
-});
+const createService = require('./upload.class');
 
-const multipartMiddleware = multer({ storage });
-// const blogStorage = fs(path.join(__dirname, '../../../public/uploads'));
 
 module.exports = function () {
   const app = this;
 
-  // const options = {
-  //   Model: blogStorage,
-  // };
+  const options = {
+  };
 
   // Initialize our service with any options it requires
   app.use('/upload',
     (req, res, next) => {
+      // need to save these references to pass them into multer in our service
+      req.feathers.expressEnv = {req, res};
       next();
     },
-    multipartMiddleware.array('files', 10),
-    (req, res, next) => {
-      res.status(201).json(req.files.map(f => (
-        { url: `http://localhost:3030/uploads/${f.filename}`, }
-      )));
-      // req.feathers.file = req.file;
-      // next();
-    }
-    // blobService(options)
+    createService(options)
   );
 
   // Get our initialized service so that we can register hooks and filters
-  // const service = app.service('upload');
+  const service = app.service('upload');
 
-  // service.hooks(hooks);
+  service.hooks(hooks);
 
-  // if (service.filter) {
-  //   service.filter(filters);
-  // }
+  if (service.filter) {
+    service.filter(filters);
+  }
 };
